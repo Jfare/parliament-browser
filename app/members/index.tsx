@@ -13,12 +13,14 @@ export default function MembersScreen() {
   useEffect(() => {
     fetch("https://api.lagtinget.ax/api/persons.json")
       .then((response) => response.json())
-      .then((data) => {
-        setMembers(data);
-        setLoading(false);
+      .then((data: Member[]) => {
+        const activeMembers = data.filter((member) => member.state === "1");
+        setMembers(activeMembers);
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Error fetching members:", error);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -51,13 +53,9 @@ export default function MembersScreen() {
         renderItem={({ item }) => (
           <List.Item
             title={`${item.first_name} ${item.last_name}`}
-            right={() => (
-              <Text style={{ marginTop: 10 }}>
-                {item.state === "1" ? "Aktiv" : "Inaktiv"}
-              </Text>
-            )}
+            right={() => <Text style={{ marginTop: 10 }}>Aktiv</Text>}
             left={() =>
-              item.image && item.image.url ? (
+              item.image?.url ? (
                 <Avatar.Image size={48} source={{ uri: item.image.url }} />
               ) : (
                 <Avatar.Text
